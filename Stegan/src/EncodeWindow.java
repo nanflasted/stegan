@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.imageio.ImageIO;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -17,7 +16,7 @@ public class EncodeWindow extends JFrame {
 	private JTextField path, path2;
 	private JLabel slabel, clabel;
 	private JButton jb;
-	private JLabel stg;
+	private JLabel stg, dataSize;
 	private int px = 78;
 
 	//Initializes window
@@ -77,6 +76,22 @@ public class EncodeWindow extends JFrame {
 
 		//Panel 3: File with info
 		JTextField tf = new JTextField(25);
+
+		//Check for previous data path
+		String ext = null;
+		try {
+			FileReader fr = new FileReader(System.getProperty("user.dir") + "\\encode.txt");
+			StringBuilder sb;
+			sb = new StringBuilder();
+			int i = fr.read();
+			while (i != 13) {
+				sb.append((char)i);
+				i = fr.read();
+			}
+			fr.close();
+			tf.setText(sb.toString());
+			ext = sb.toString().substring(sb.toString().length() - 3, sb.toString().length());
+		}catch(Exception x){}
 		path = tf;
 		tf.setEditable(false);
 		JButton jb = new JButton("Browse...");
@@ -88,6 +103,22 @@ public class EncodeWindow extends JFrame {
 
 		//Panel 4: Mask loc'n.
 		JTextField tf2 = new JTextField(25);
+		ext = null;
+		try {
+			FileReader fr = new FileReader(System.getProperty("user.dir") + "\\encode.txt");
+			StringBuilder sb = new StringBuilder();
+			int i = fr.read();
+			while (i != 13)
+				i = fr.read();
+			i = fr.read();
+			while (i != -1) {
+				sb.append((char)i);
+				i = fr.read();
+			}
+			fr.close();
+			tf2.setText(sb.toString());
+			ext = sb.toString().substring(sb.toString().length() - 3, sb.toString().length());
+		}catch(Exception x){}
 		path2 = tf2;
 		tf2.setEditable(false);
 		JButton jb2 = new JButton("Browse...");
@@ -99,14 +130,56 @@ public class EncodeWindow extends JFrame {
 
 		//Panel 5: Encode/Cancel buttons
 		JLabel stg = new JLabel("Total storage available: 0 bytes");
+		JLabel dataSize = new JLabel("Size of data: 0 bytes");
 		this.stg = stg;
+		this.dataSize = dataSize;
+
+		//Check previous encode file
+		// 1) get filepaths
+		String firstPath = null, secondPath = null;
+		String exten = null;
+		try {
+			FileReader fr = new FileReader(System.getProperty("user.dir") + "\\encode.txt");
+			StringBuilder sb = new StringBuilder();
+			int i = fr.read();
+			while (i != 13) {
+				sb.append((char)i);
+				i = fr.read();
+			}
+			i = fr.read();
+			i = fr.read();
+			firstPath = sb.toString();
+			sb = new StringBuilder();
+			while (i != -1) {
+				sb.append((char)i);
+				i = fr.read();
+			}
+			secondPath = sb.toString();
+			fr.close();
+
+			//2) Make new files
+			File data = new File(firstPath),
+				 pic = new File(secondPath);
+			if (data.length() > 0)
+				updateDS();
+			exten = secondPath.substring(secondPath.length() - 3, secondPath.length());
+			if (exten.equals("bmp")) {
+				BufferedImage b = ImageIO.read(pic);
+				this.px = b.getWidth() * b.getHeight();
+				updateStg();
+			}
+		}catch(Exception e){}
+
+		JPanel jpanel = new JPanel(new GridLayout(2,1));
+		jpanel.add(stg);
+		jpanel.add(dataSize);
 		JButton enc = new JButton("Encode"),
 				ccl = new JButton("Cancel");
 		enc.addActionListener(new EncodeListener());
 		this.jb = enc;
 		enc.setEnabled(false);
 		ccl.addActionListener(new CclListener());
-		jp[4].add(stg);
+		jp[4].add(jpanel);
 		jp[4].add(enc);
 		jp[4].add(ccl);
 
@@ -114,6 +187,12 @@ public class EncodeWindow extends JFrame {
 		for (int i = 0; i < 5; i++)
 			add(jp[i]);
 
+		if (firstPath != null) {
+			if (!firstPath.equals("") && exten != null && exten.equals("bmp"))
+				this.jb.setEnabled(true);
+			else
+				System.out.println(firstPath.equals(""));
+		}
 		addWindowListener(new CclListener());
 		setVisible(true);
 	}
@@ -130,6 +209,20 @@ public class EncodeWindow extends JFrame {
 			stg.setText("Total storage available: " + fileCap / 1024 + " KB");
 		else
 			stg.setText("Total storage available: " + fileCap + " bytes");
+	}
+
+	private void updateDS() {
+		long fileSize = new File(path.getText()).length();
+		if (fileSize % (1099511627776L) != fileSize)
+			dataSize.setText("Size of data: " + fileSize / (1099511627776L) + " TB");
+		else if (fileSize % (1073741824) != fileSize)
+			dataSize.setText("Size of data: " + fileSize / (1073741824) + " GB");
+		else if (fileSize % (1048576) != fileSize)
+			dataSize.setText("Size of data: " + fileSize / (1048576) + " MB");
+		else if (fileSize % 1024 != fileSize)
+			dataSize.setText("Size of data: " + fileSize / 1024 + " KB");
+		else
+			dataSize.setText("Size of data: " + fileSize + " bytes");
 	}
 
 	public class SliderListener implements ChangeListener {
@@ -199,6 +292,9 @@ public class EncodeWindow extends JFrame {
 				px = 78;
 				updateStg();
 			}
+
+			if (bnum == 0)
+				updateDS();
 		}
 	}
 
@@ -220,7 +316,6 @@ public class EncodeWindow extends JFrame {
 			boolean comp = chk.isSelected();
 			boolean encryption = chk2.isSelected();
 			try {
-				//public MaskEncoderII(File infoFile, File maskFile, String setting, int bPP, boolean compression, boolean encryption, String password)
 				new MaskEncoderII(new File(path.getText()), new File(path2.getText()), encoding, slider.getValue(), comp, encryption, pw);
 			}catch (Exception E) {}
 
@@ -251,6 +346,18 @@ public class EncodeWindow extends JFrame {
 			total.add(btm, BorderLayout.SOUTH);
 			d.setContentPane(total);
 			d.setVisible(true);
+
+			//Save path name to a file in current directory. Will be checked next time.
+			String currentDir = System.getProperty("user.dir");
+			PrintWriter wtr = null;
+			String str = currentDir + "\\encode.txt";
+			try {
+				wtr = new PrintWriter(str);
+			}catch (FileNotFoundException x) {}
+			wtr.print(path.getText());
+			wtr.println();
+			wtr.print(path2.getText());
+			wtr.close();
 		}
 	}
 
@@ -258,6 +365,4 @@ public class EncodeWindow extends JFrame {
 	public static void main(String[] args) {
 		new EncodeWindow();
 	}
-
-
 }
