@@ -21,22 +21,26 @@ public class MaskEncoder {
 	private boolean compressionFlag;
 	private int bitsToRepBPPInHeader = 3, bitsToRepFSizeInHeader = 31, bitsToRepFExt = 40, fExtLength = 5;
 	private int placeCounter = 0;
+	private boolean encrypting;
 	
-	public MaskEncoder(String file, String settings, int bPP, String fileExt, boolean compBool) throws IOException {
+	public MaskEncoder(String dFile, String file, String filePath, String settings, int bPP, String fileExt, boolean compBool, boolean enc) throws IOException {
 		headerBits = new ArrayList<Integer>();
+		encrypting = enc;
 		fileExtension = fileExt;
 		byteList = new ArrayList<Integer>();
 		bitsPerPixel = bPP;
 		compressionFlag = compBool;
 		mySettings = settings;
 		fileName = file;
-		myProc = new InfoProcessor(fileName, bitsPerPixel);
+		myProc = new InfoProcessor(fileName, bitsPerPixel, encrypting);
 		image = ImageIO.read(new File(fileName));
 		imageWidth = image.getWidth();
 		imageHeight= image.getHeight();
+		this.applyInfoToMask();
+		ImageIO.write(image, "bmp", new File(fileName));
 	}
 	
-	private void applyInfoToMask() throws IOException{
+	private static void applyInfoToMask() throws IOException{
 		byteList = myProc.getGroups(arraySize);
 		int widthCounter = headerSize;
 		int heightCounter = 0;
@@ -107,7 +111,7 @@ public class MaskEncoder {
 		}
 	}
 	
-	private void composeHeader(int bPP, int fSize, String fileExt, int rem, boolean comp){ //headerBits is header
+	private static void composeHeader(int bPP, int fSize, String fileExt, int rem, boolean comp){ //headerBits is header
 		Stack<Integer> int2Binary = new Stack<Integer>();
 		placeCounter = 0;
 		int tempInt = bPP;
@@ -168,7 +172,7 @@ public class MaskEncoder {
 			headerBits.add(0);
 	}
 	
-	private int[] changeColor(int chosenBPP, int r, int g, int b, int valToHide, boolean retry){ //current plan is to distribute changes equally, based on which operation
+	private static int[] changeColor(int chosenBPP, int r, int g, int b, int valToHide, boolean retry){ //current plan is to distribute changes equally, based on which operation
 		int[] rgbRA = new int[3]; //When Alpha, needs to be updated //0 = r; 1 = g; 2 = b;
 		int summed = r + g + b;
 		int posNecessary = (((summed % chosenBPP) - valToHide)+chosenBPP)%chosenBPP;
@@ -226,7 +230,7 @@ public class MaskEncoder {
 		return rgbRA;
 	}
 	
-	private int[] defaultDarken(int chosenBPP, int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
+	private static int[] defaultDarken(int chosenBPP, int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
 		int[] rgbRA = new int[3]; 
 		int[] tempRA = new int[2];
 		int[] modRA = new int[3];
@@ -250,7 +254,7 @@ public class MaskEncoder {
 		return rgbRA;
 	}
 	
-	private int[] defaultLighten(int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
+	private static int[] defaultLighten(int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
 		int[] rgbRA = new int[3]; 
 		int[] tempRA = new int[2];
 		int[] modRA = new int[3];
@@ -274,7 +278,7 @@ public class MaskEncoder {
 		return rgbRA;
 	}
 	
-	private int[] singleInstance(int colorVal, int change){
+	private static int[] singleInstance(int colorVal, int change){
 		int[] returnRA = new int[2];//0=val, 1=change
 		int newVal = colorVal + change;
 		if(newVal < 0){
