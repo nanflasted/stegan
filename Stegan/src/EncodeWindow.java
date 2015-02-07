@@ -17,6 +17,7 @@ public class EncodeWindow extends JFrame {
 	private JLabel slabel, clabel;
 	private JButton jb;
 	private JLabel stg;
+	private int px = 78;
 
 	//Initializes window
 	public EncodeWindow() {
@@ -111,11 +112,26 @@ public class EncodeWindow extends JFrame {
 		setVisible(true);
 	}
 
+	private void updateStg() {
+		long fileCap = (long)((double)(slider.getValue() * (px - 78))/8);
+		if (fileCap % (1099511627776L) != fileCap)
+			stg.setText("Total storage available: " + fileCap / (1099511627776L) + " TB");
+		else if (fileCap % (1073741824) != fileCap)
+			stg.setText("Total storage available: " + fileCap / (1073741824) + " GB");
+		else if (fileCap % (1048576) != fileCap)
+			stg.setText("Total storage available: " + fileCap / (1048576) + " MB");
+		else if (fileCap % 1024 != fileCap)
+			stg.setText("Total storage available: " + fileCap / 1024 + " KB");
+		else
+			stg.setText("Total storage available: " + fileCap + " bytes");
+	}
+
 	public class SliderListener implements ChangeListener {
 		public void stateChanged(ChangeEvent e) {
 			JSlider s = (JSlider)(e.getSource());
 			int sliderVal = s.getValue();
 			slabel.setText(sliderVal + "");
+			updateStg();
 		}
 	}
 
@@ -140,7 +156,9 @@ public class EncodeWindow extends JFrame {
 			File f = null;
 			String ext = null;
 
-			if (i == JFileChooser.APPROVE_OPTION) {
+			if (i != JFileChooser.APPROVE_OPTION)
+				return;
+			else {
 				f = fc.getSelectedFile();
 				String filepath = f.getPath();
 				if (bnum == 0)
@@ -167,20 +185,14 @@ public class EncodeWindow extends JFrame {
 				int h = b.getHeight(),
 					w = b.getWidth(),
 					px = h * w;
-				long bytes = f.length();
-				long fileCap = (long)((double)(bytes * (px - 78)) / px);
-				if (fileCap % (1099511627776L) != fileCap)
-					stg.setText("Total storage available: " + fileCap / (1099511627776L) + " TB");
-				else if (fileCap % (1073741824) != fileCap)
-					stg.setText("Total storage available: " + fileCap / (1073741824) + " GB");
-				else if (fileCap % (1048576) != fileCap)
-					stg.setText("Total storage available: " + fileCap / (1048576) + " MB");
-				else if (fileCap % 1024 != fileCap)
-					stg.setText("Total storage available: " + fileCap / 1024 + " KB");
-				else
-					stg.setText("Total storage available: " + fileCap + " bytes");
+				EncodeWindow.this.px = px;
+				updateStg();
 			}
 
+			if (bnum == 1 && !ext.equals("bmp")) {
+				px = 78;
+				updateStg();
+			}
 		}
 	}
 

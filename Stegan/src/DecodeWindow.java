@@ -75,7 +75,7 @@ public class DecodeWindow extends JFrame {
 			//Call decoder
 			File f = new File(s);
 			try {
-				Decoder.decoder(f,dir, pw);
+				//Decoder.decoder(f,dir, pw);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(DecodeWindow.this, x.getMessage());
 				return;
