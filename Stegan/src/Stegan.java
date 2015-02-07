@@ -5,13 +5,10 @@ import java.awt.event.*;
 //Intro window
 public class Stegan extends JFrame {
 
-	private Stegan thisWindow; //used to close window and activate Encode/Decode window
-
 	//initialize intro window
 	public Stegan() {
-		thisWindow = this;
 
-		// Set window options (visible later)
+		// Set window options (setVisible later)
 		setSize(300,120);
 		setTitle("Steganographer");
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
@@ -61,11 +58,11 @@ public class Stegan extends JFrame {
 	public class CodeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			JButton b = (JButton)e.getSource();
-			thisWindow.setVisible(false);
+			Stegan.this.setVisible(false);
 			if (b.getText().equals("Encode"))	;
 				//init Encode window
-			else								;
-				//init Decode Window
+			else
+				new DecodeWindow();
 		}
 	}
 
@@ -81,6 +78,6 @@ public class Stegan extends JFrame {
 
 	//Starts this window
 	public static void main(String[] args) {
-		Stegan s = new Stegan();
+		new Stegan();
 	}
 }
