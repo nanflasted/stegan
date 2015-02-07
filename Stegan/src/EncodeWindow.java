@@ -72,6 +72,8 @@ public class EncodeWindow extends JFrame {
 		jp[1].add(box);
 		jp[1].add(comp);
 	    jp[1].add(check);
+	    jp[1].add(encr);
+	    jp[1].add(check2);
 
 		//Panel 3: File with info
 		JTextField tf = new JTextField(25);
@@ -256,6 +258,6 @@ public class EncodeWindow extends JFrame {
 	public static void main(String[] args) {
 		new EncodeWindow();
 	}
-	
-	
+
+
 }
