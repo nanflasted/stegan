@@ -107,7 +107,7 @@ public class InfoProcessor {
 		return res;
 	}
 	
-	public static void main(String args[]) throws IOException
+	/*public static void main(String args[]) throws IOException
 	{
 		InfoProcessor test = new InfoProcessor("src/InfoProcessorTestingFile.in",5,true,"swag");
 		System.out.println("swag".hashCode());
@@ -126,5 +126,5 @@ public class InfoProcessor {
 		{
 			System.out.println(i.intValue());
 		}
-	}
+	}*/
 }
