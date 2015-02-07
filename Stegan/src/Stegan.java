@@ -59,8 +59,8 @@ public class Stegan extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			JButton b = (JButton)e.getSource();
 			Stegan.this.setVisible(false);
-			if (b.getText().equals("Encode"))	;
-				//init Encode window
+			if (b.getText().equals("Encode"))
+				new EncodeWindow();
 			else
 				new DecodeWindow();
 		}

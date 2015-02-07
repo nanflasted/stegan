@@ -67,10 +67,15 @@ public class DecodeWindow extends JFrame {
 			i++;
 			String dir = s.substring(0, i);
 
+			//Get PW (if any)
+			String pw = JOptionPane.showInputDialog("Enter a password (optional):");
+			if (pw.equals(""))
+				pw = null;
+
 			//Call decoder
 			File f = new File(s);
 			try {
-				Decoder.decoder(f,dir);
+				//Decoder.decoder(f,dir, pw);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(DecodeWindow.this, x.getMessage());
 				return;
