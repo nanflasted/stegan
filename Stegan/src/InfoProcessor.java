@@ -5,22 +5,22 @@ import java.util.*;
 
 public class InfoProcessor {
 
-	private BufferedInputStream wrapper;
-	private FileInputStream stream;
-	private int bpp;
-	private Stack<Boolean> boolQ = new Stack<Boolean>();
-	private byte[] buffer = new byte[1];
-	private Queue<Integer> resQ = new LinkedList<Integer>();
+	private BufferedInputStream wrapper;						//the actual input stream
+	private FileInputStream stream;								//the input stream to be wrapped
+	private int bpp;											//bits per pixel
+	private Stack<Boolean> boolQ = new Stack<Boolean>();		//a queue of booleans denoting a group of 'bpp' bits 
+	private byte[] buffer = new byte[1];						//buffer for reading
+	private Queue<Integer> resQ = new LinkedList<Integer>();	//a queue for integers to be sent to Matt
 	
 	
-	public InfoProcessor(String fileName, int bitsPerPixel) throws IOException
+	public InfoProcessor(String fileName, int bitsPerPixel) throws IOException //constructor: takes in filename to be read, and bits number request
 	{
 		stream = new FileInputStream(fileName);
 		wrapper = new BufferedInputStream(stream);
 		bpp = bitsPerPixel;
 	}
 	
-	private Integer calc()
+	private Integer calc() //converts current group of bits into integer
 	{
 		int num = 0;
 		int dig = 1;
@@ -32,7 +32,7 @@ public class InfoProcessor {
 		return new Integer(num); 
 	}
 	
-	private int reverse(byte input)
+	private int reverse(byte input) //reverse the byte read by bufferinputstream so that it works.
 	{
 		int in = input;
 		int res = 0;
@@ -46,7 +46,7 @@ public class InfoProcessor {
 		return res;
 	}
 	
-	private void makeResQ() throws IOException
+	private void makeResQ() throws IOException //make the next integer
 	{
 		int eof = 0;
 		while (((eof=wrapper.read(buffer,0,1))!=-1))
@@ -70,7 +70,7 @@ public class InfoProcessor {
 		}
 	}
 	
-	public ArrayList<Integer> getGroups(int numberOfGroups) throws IOException
+	public ArrayList<Integer> getGroups(int numberOfGroups) throws IOException //returns the numberOfGroups integers, each denoting bpp bits in the original file.
 	{
 		ArrayList<Integer> res = new ArrayList<Integer>();
 		res.add(0);
