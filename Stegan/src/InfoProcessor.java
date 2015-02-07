@@ -10,6 +10,8 @@ public class InfoProcessor {
 	private int bpp;
 	private Stack<Boolean> boolQ = new Stack<Boolean>();
 	private byte[] buffer = new byte[1];
+	private Queue<Integer> resQ = new LinkedList<Integer>();
+	
 	
 	public InfoProcessor(String fileName, int bitsPerPixel) throws IOException
 	{
@@ -30,45 +32,81 @@ public class InfoProcessor {
 		return new Integer(num); 
 	}
 	
-	private byte reverse(byte input)
+	private int reverse(byte input)
 	{
-		byte res = 0;
+		int in = input;
+		int res = 0;
 		for (int i = 0; i < 8; i++)
 		{
-			res |= input&1;
-			res <<= res;
+			res |= in&1;
+			in = (in >> 1);
+			res = (res << 1);
 		}
-		res >>= res;
+		res = (res >> 1);
 		return res;
 	}
 	
-	public ArrayList<Integer> getGroups(int numberOfGroups) throws IOException
+	private void makeResQ() throws IOException
 	{
-		ArrayList<Integer> res = new ArrayList<Integer>();
 		int eof = 0;
-		while (((eof=wrapper.read(buffer,0,1))!=-1)&&(res.size()<numberOfGroups+1))
+		while (((eof=wrapper.read(buffer,0,1))!=-1))
 		{
 			int temp = reverse(buffer[0]);
 			int k = 0;
 			while (k < 8)
 			{
 				boolQ.push((temp&1)==1);
-				if (boolQ.size()==bpp) res.add(calc());
+				if (boolQ.size()==bpp) resQ.add(calc());
 				k++;
-				temp >>= temp;
+				temp = temp >> 1;
 			}
 		}
 		if (eof==-1)
 		{
-			res.set(0,1);
-			res.add(1, boolQ.size());
-			res.add(calc());
+			resQ.add(-1);
+			resQ.add(boolQ.size());
+			resQ.add(calc());
+			
+		}
+	}
+	
+	public ArrayList<Integer> getGroups(int numberOfGroups) throws IOException
+	{
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		res.add(0);
+		while (res.size()<numberOfGroups+1)
+		{
+			if (resQ.isEmpty()) makeResQ();
+			int temp = resQ.poll();
+			if (temp != -1)
+			{
+				res.add(temp);
+			}
+			else
+			{
+				res.set(0, 1);
+				res.add(1,resQ.poll());
+				res.add(resQ.poll());
+				break;
+			}
 		}
 		return res;
 	}
 	
-	public static void main(String args[])
+	/*public static void main(String args[]) throws IOException
 	{
-		
-	}
+		InfoProcessor test = new InfoProcessor("src/InfoProcessorTestingFile.in",5);
+		for (Integer i : test.getGroups(2))
+		{
+			System.out.println(i.intValue());
+		}
+		for (Integer i : test.getGroups(2))
+		{
+			System.out.println(i.intValue());
+		}
+		for (Integer i : test.getGroups(2))
+		{
+			System.out.println(i.intValue());
+		}
+	}*/
 }
