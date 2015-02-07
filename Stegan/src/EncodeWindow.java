@@ -214,7 +214,7 @@ public class EncodeWindow extends JFrame {
 				 picFile = new File(path2.getText());
 			String encoding = (String)(cb.getSelectedItem());
 			boolean comp = chk.isSelected();
-			Encoder.encoder(dataFile, picFile, dir, encoding, slider.getValue(), "bmp", comp);
+			new MaskEncoder(dataFile, picFile, dir, encoding, slider.getValue(), "bmp", comp);
 
 			//After encoding, inform user of success
 			EncodeWindow.this.setVisible(false);
