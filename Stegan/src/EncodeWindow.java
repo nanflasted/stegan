@@ -12,7 +12,7 @@ public class EncodeWindow extends JFrame {
 	// Window parts
 	private JSlider slider;
 	private JComboBox cb;
-	private JCheckBox chk;
+	private JCheckBox chk, chk2;
 	private JTextField path, path2;
 	private JLabel slabel, clabel;
 	private JButton jb;
@@ -63,7 +63,10 @@ public class EncodeWindow extends JFrame {
 		this.clabel = clabel;
 		JLabel comp = new JLabel("Compress it?");
 		JCheckBox check = new JCheckBox();
+		JLabel encr = new JLabel("Encrypt it?");
+		JCheckBox check2 = new JCheckBox();
 		chk = check;
+		chk2 = check2;
 		jp[1].add(clabel);
 		jp[1].add(box);
 		jp[1].add(comp);
@@ -210,11 +213,12 @@ public class EncodeWindow extends JFrame {
 			String pw = JOptionPane.showInputDialog("Set a password for this encoding (optional):");
 
 			//Call encoder
-			File dataFile = new File(path.getText()),
-				 picFile = new File(path2.getText());
 			String encoding = (String)(cb.getSelectedItem());
 			boolean comp = chk.isSelected();
-			new MaskEncoder(dataFile, picFile, dir, encoding, slider.getValue(), "bmp", comp);
+			boolean encryption = chk2.isSelected();
+			try {
+				new MaskEncoder(path.getText(), path.getText(), dir, encoding, slider.getValue(), "bmp", comp, encryption, pw);
+			}catch (Exception E) {}
 
 			//After encoding, inform user of success
 			EncodeWindow.this.setVisible(false);

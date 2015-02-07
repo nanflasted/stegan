@@ -6,24 +6,24 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class MaskEncoder {
-	private ArrayList<Integer> byteList;
-	private int bitsPerPixel, imageWidth, imageHeight, activeRemainder;
-	private long header; //5 bpp, 31 filesize, 1 remainder
-	private String mySettings;  //darken, lighten, red, blue, green, auto, (blur?)
-	private InfoProcessor myProc;
-	private String fileName;
-	private int arraySize = 10000; 
-	private BufferedImage image;
-	private int totalPixels, fileSize;
-	private int headerSize = 76;
-	private ArrayList<Integer> headerBits; 
-	private String fileExtension;
-	private boolean compressionFlag;
-	private int bitsToRepBPPInHeader = 3, bitsToRepFSizeInHeader = 31, bitsToRepFExt = 40, fExtLength = 5;
-	private int placeCounter = 0;
-	private boolean encrypting;
-	
-	public MaskEncoder(String dFile, String file, String filePath, String settings, int bPP, String fileExt, boolean compBool, boolean enc) throws IOException {
+	private static ArrayList<Integer> byteList;
+	private static int bitsPerPixel, imageWidth, imageHeight, activeRemainder;
+	private static long header; //5 bpp, 31 filesize, 1 remainder
+	private static String mySettings;  //darken, lighten, red, blue, green, auto, (blur?)
+	private static InfoProcessor myProc;
+	private static String fileName;
+	private static int arraySize = 10000;
+	private static BufferedImage image;
+	private static int totalPixels, fileSize;
+	private static int headerSize = 76;
+	private static ArrayList<Integer> headerBits;
+	private static String fileExtension;
+	private static boolean compressionFlag;
+	private static int bitsToRepBPPInHeader = 3, bitsToRepFSizeInHeader = 31, bitsToRepFExt = 40, fExtLength = 5;
+	private static int placeCounter = 0;
+	private static boolean encrypting;
+
+	public MaskEncoder(String dFile, String file, String filePath, String settings, int bPP, String fileExt, boolean compBool, boolean enc, String pw) throws IOException {
 		headerBits = new ArrayList<Integer>();
 		encrypting = enc;
 		fileExtension = fileExt;
@@ -32,14 +32,14 @@ public class MaskEncoder {
 		compressionFlag = compBool;
 		mySettings = settings;
 		fileName = file;
-		myProc = new InfoProcessor(fileName, bitsPerPixel, encrypting);
+		myProc = new InfoProcessor(fileName, bitsPerPixel, encrypting, pw);
 		image = ImageIO.read(new File(fileName));
 		imageWidth = image.getWidth();
 		imageHeight= image.getHeight();
-		this.applyInfoToMask();
+		applyInfoToMask();
 		ImageIO.write(image, "bmp", new File(fileName));
 	}
-	
+
 	private static void applyInfoToMask() throws IOException{
 		byteList = myProc.getGroups(arraySize);
 		int widthCounter = headerSize;
@@ -58,7 +58,7 @@ public class MaskEncoder {
 				rgbRA = changeColor(bitsPerPixel, tempColor.getRed(), tempColor.getGreen(), tempColor.getBlue(), byteList.get(i), false);
 				tempColor = new Color(rgbRA[0], rgbRA[1], rgbRA[2]);
 				image.setRGB(widthCounter, heightCounter, tempColor.getRGB());
-				
+
 				widthCounter = (widthCounter+1)%imageWidth;
 				if(widthCounter == 0)
 					heightCounter++;
@@ -66,7 +66,7 @@ public class MaskEncoder {
 					System.out.println("Image Too Small");
 					System.exit(0);
 				}
-				
+
 				byteList = myProc.getGroups(arraySize);
 			}
 		}
@@ -77,7 +77,7 @@ public class MaskEncoder {
 			rgbRA = changeColor(bitsPerPixel, tempColor.getRed(), tempColor.getGreen(), tempColor.getBlue(), byteList.get(i), false);
 			tempColor = new Color(rgbRA[0], rgbRA[1], rgbRA[2]);
 			image.setRGB(widthCounter, heightCounter, tempColor.getRGB());
-			
+
 			widthCounter = (widthCounter+1)%imageWidth;
 			if(widthCounter == 0)
 				heightCounter++;
@@ -85,10 +85,10 @@ public class MaskEncoder {
 				System.out.println("Image Too Small");
 				System.exit(0);
 			}
-			
+
 			byteList = myProc.getGroups(arraySize);
 		}
-		totalPixels = heightCounter * imageWidth + widthCounter + 1; 
+		totalPixels = heightCounter * imageWidth + widthCounter + 1;
 		fileSize = totalPixels - headerSize;
 		composeHeader(bitsPerPixel, fileSize, fileExtension, activeRemainder, compressionFlag);
 		for(int i = 0; i < headerSize; i++){
@@ -100,7 +100,7 @@ public class MaskEncoder {
 				rgbRA = changeColor(2, tempColor.getRed(), tempColor.getGreen(), tempColor.getBlue(), headerBits.get(i), false);
 			tempColor = new Color(rgbRA[0], rgbRA[1], rgbRA[2]);
 			image.setRGB(widthCounter, heightCounter, tempColor.getRGB());
-			
+
 			widthCounter = (widthCounter+1)%imageWidth;
 			if(widthCounter == 0)
 				heightCounter++;
@@ -110,7 +110,7 @@ public class MaskEncoder {
 			}
 		}
 	}
-	
+
 	private static void composeHeader(int bPP, int fSize, String fileExt, int rem, boolean comp){ //headerBits is header
 		Stack<Integer> int2Binary = new Stack<Integer>();
 		placeCounter = 0;
@@ -126,7 +126,7 @@ public class MaskEncoder {
 				headerBits.add(0);
 				placeCounter++;
 			}
-			tempCounter--;	
+			tempCounter--;
 		}
 		tempInt = fSize;
 		tempCounter = bitsToRepFSizeInHeader - 1;
@@ -140,9 +140,9 @@ public class MaskEncoder {
 				headerBits.add(0);
 				placeCounter++;
 			}
-			tempCounter--;	
+			tempCounter--;
 		}
-		
+
 		byte[] fileExtBytes = fileExt.getBytes();
 		for(int i = 0; i < fileExtBytes.length; i++){
 			int tempByteInt = Byte.valueOf(fileExtBytes[i]).intValue();
@@ -158,20 +158,20 @@ public class MaskEncoder {
 					headerBits.add(0);
 					placeCounter++;
 				}
-				tempCounter--;	
+				tempCounter--;
 			}
 		}
-		
+
 		/*for(int i = 0; i < fExtLength; i++){
 			char tempChar = fileExt.charAt(i);
 		}*/
 		headerBits.add(rem);
 		if(comp)
-			headerBits.add(1); 
+			headerBits.add(1);
 		else
 			headerBits.add(0);
 	}
-	
+
 	private static int[] changeColor(int chosenBPP, int r, int g, int b, int valToHide, boolean retry){ //current plan is to distribute changes equally, based on which operation
 		int[] rgbRA = new int[3]; //When Alpha, needs to be updated //0 = r; 1 = g; 2 = b;
 		int summed = r + g + b;
@@ -179,7 +179,7 @@ public class MaskEncoder {
 	//	int alreadyCompensated = 0;
 		//int[] tempRA = new int[2];
 		String chosenSetting = mySettings;
-		
+
 		if(retry){
 			/*if(summed > 400){ //the operation failed because too bright
 				chosenSetting = "darken";
@@ -188,7 +188,7 @@ public class MaskEncoder {
 			}*/
 			chosenSetting = "auto";
 		}
-		
+
 		switch(chosenSetting){
 			case "darken":
 				if(r > (posNecessary/3) + 1 & g > (posNecessary/3) + 1 & b > (posNecessary/3) + 1)
@@ -225,13 +225,13 @@ public class MaskEncoder {
 			default:
 				break;
 		}
-		
-		
+
+
 		return rgbRA;
 	}
-	
+
 	private static int[] defaultDarken(int chosenBPP, int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
-		int[] rgbRA = new int[3]; 
+		int[] rgbRA = new int[3];
 		int[] tempRA = new int[2];
 		int[] modRA = new int[3];
 		modRA[0] = rMod;
@@ -253,9 +253,9 @@ public class MaskEncoder {
 		}
 		return rgbRA;
 	}
-	
+
 	private static int[] defaultLighten(int r, int b, int g, int rMod, int gMod, int bMod, int whichRemainder, int posNecessary){
-		int[] rgbRA = new int[3]; 
+		int[] rgbRA = new int[3];
 		int[] tempRA = new int[2];
 		int[] modRA = new int[3];
 		modRA[0] = rMod;
@@ -277,7 +277,7 @@ public class MaskEncoder {
 		}
 		return rgbRA;
 	}
-	
+
 	private static int[] singleInstance(int colorVal, int change){
 		int[] returnRA = new int[2];//0=val, 1=change
 		int newVal = colorVal + change;
@@ -285,10 +285,10 @@ public class MaskEncoder {
 			newVal = 0;
 		} else if(newVal >255){
 			newVal = 255;
-		} 
+		}
 		returnRA[0] = newVal;
 		returnRA[1] = newVal - colorVal;
 		return returnRA;
 	}
-	
+
 }
