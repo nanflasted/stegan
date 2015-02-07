@@ -47,7 +47,7 @@ public class EncodeWindow extends JFrame {
 		slider.setPaintTicks(true);
 		slider.setMajorTickSpacing(1);
 		slider.addChangeListener(new SliderListener());
-		JLabel slabel = new JLabel("12");
+		JLabel slabel = new JLabel("4");
 		this.slabel = slabel;
 		JLabel slabel2 = new JLabel("Bits per px");
 		jp[0].add(slabel2);
@@ -115,10 +115,7 @@ public class EncodeWindow extends JFrame {
 		public void stateChanged(ChangeEvent e) {
 			JSlider s = (JSlider)(e.getSource());
 			int sliderVal = s.getValue();
-			String stext = sliderVal + "";
-			if (sliderVal < 10)
-				stext = "0" + stext;
-			slabel.setText(stext);
+			slabel.setText(sliderVal + "");
 		}
 	}
 
@@ -134,7 +131,6 @@ public class EncodeWindow extends JFrame {
 	public class BrowseListener implements ActionListener {
 		private int bnum;
 		public BrowseListener(int i) {
-			super();
 			bnum = i;
 		}
 
@@ -142,6 +138,7 @@ public class EncodeWindow extends JFrame {
 			JFileChooser fc = new JFileChooser();
 			int i = fc.showOpenDialog(EncodeWindow.this);
 			File f = null;
+			String ext = null;
 
 			if (i == JFileChooser.APPROVE_OPTION) {
 				f = fc.getSelectedFile();
@@ -151,7 +148,7 @@ public class EncodeWindow extends JFrame {
 				else if (bnum == 1)
 					EncodeWindow.this.path2.setText(filepath);
 
-				String ext = filepath.substring(filepath.length()-3, filepath.length());
+				ext = filepath.substring(filepath.length()-3, filepath.length());
 				if (bnum == 1 && ext.equals("bmp") && path.getText() != null && !path.getText().equals(""))
 					jb.setEnabled(true);
 				else if (bnum == 0 && path2.getText() != null && !path2.getText().equals("")
@@ -161,7 +158,7 @@ public class EncodeWindow extends JFrame {
 					jb.setEnabled(false);
 			}
 
-			if (bnum == 1 && f != null) {
+			if (bnum == 1 && f != null && ext.equals("bmp")) {
 				BufferedImage b = null;
 				try {
 					b = ImageIO.read(f);
