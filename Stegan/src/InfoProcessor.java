@@ -11,13 +11,16 @@ public class InfoProcessor {
 	private Stack<Boolean> boolQ = new Stack<Boolean>();		//a queue of booleans denoting a group of 'bpp' bits 
 	private byte[] buffer = new byte[1];						//buffer for reading
 	private Queue<Integer> resQ = new LinkedList<Integer>();	//a queue for integers to be sent to Matt
+	private boolean encrypting;
+	private int hashCode;
 	
-	
-	public InfoProcessor(String fileName, int bitsPerPixel) throws IOException //constructor: takes in filename to be read, and bits number request
+	public InfoProcessor(String fileName, int bitsPerPixel, boolean enc, String password) throws IOException //constructor: takes in filename to be read, and bits number request
 	{
 		stream = new FileInputStream(fileName);
 		wrapper = new BufferedInputStream(stream);
 		bpp = bitsPerPixel;
+		encrypting = enc;
+		hashCode = password.hashCode();
 	}
 	
 	private Integer calc() //converts current group of bits into integer
@@ -46,11 +49,22 @@ public class InfoProcessor {
 		return res;
 	}
 	
+	private byte encrypt(byte plaintext)
+	{
+		int temp = plaintext;
+		int hashpart = hashCode & 0xFF;
+		temp = temp ^ hashpart;
+		hashCode = hashCode >> 8;
+		hashCode = hashCode | (temp << 24);
+		return (byte) temp;
+	}
+	
 	private void makeResQ() throws IOException //make the next integer
 	{
 		int eof = 0;
 		while (((eof=wrapper.read(buffer,0,1))!=-1))
 		{
+			buffer[0] = encrypting? encrypt(buffer[0]): buffer[0];
 			int temp = reverse(buffer[0]);
 			int k = 0;
 			while (k < 8)
@@ -66,7 +80,7 @@ public class InfoProcessor {
 			resQ.add(-1);
 			resQ.add(boolQ.size());
 			resQ.add(calc());
-			
+			wrapper.close();
 		}
 	}
 	
@@ -93,9 +107,13 @@ public class InfoProcessor {
 		return res;
 	}
 	
-	/*public static void main(String args[]) throws IOException
+	public static void main(String args[]) throws IOException
 	{
-		InfoProcessor test = new InfoProcessor("src/InfoProcessorTestingFile.in",5);
+		InfoProcessor test = new InfoProcessor("src/InfoProcessorTestingFile.in",5,true,"swag");
+		System.out.println("swag".hashCode());
+		System.out.println((byte)'c');
+		System.out.println(test.encrypt((byte)'c'));
+		System.out.println((byte)3543529);
 		for (Integer i : test.getGroups(2))
 		{
 			System.out.println(i.intValue());
@@ -108,5 +126,5 @@ public class InfoProcessor {
 		{
 			System.out.println(i.intValue());
 		}
-	}*/
+	}
 }
