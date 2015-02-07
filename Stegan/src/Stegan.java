@@ -1,4 +1,5 @@
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -80,4 +81,5 @@ public class Stegan extends JFrame {
 	public static void main(String[] args) {
 		new Stegan();
 	}
+
 }

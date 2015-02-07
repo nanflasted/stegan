@@ -23,7 +23,7 @@ public class MaskEncoder {
 	private static int placeCounter = 0;
 	private static boolean encrypting;
 
-	public MaskEncoder(String dFile, String file, String filePath, String settings, int bPP, String fileExt, boolean compBool, boolean enc, String pw) throws IOException {
+	public MaskEncoder(File dFile, File file, String filePath, String settings, int bPP, String fileExt, boolean compBool, boolean enc, String pw) throws IOException {
 		headerBits = new ArrayList<Integer>();
 		encrypting = enc;
 		fileExtension = fileExt;
@@ -36,8 +36,9 @@ public class MaskEncoder {
 		image = ImageIO.read(new File(fileName));
 		imageWidth = image.getWidth();
 		imageHeight= image.getHeight();
+		
 		applyInfoToMask();
-		ImageIO.write(image, "bmp", new File(fileName));
+		ImageIO.write(image, "bmp", new File(fileName + "new!"));
 	}
 
 	private static void applyInfoToMask() throws IOException{

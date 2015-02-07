@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.imageio.ImageIO;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -217,7 +218,8 @@ public class EncodeWindow extends JFrame {
 			boolean comp = chk.isSelected();
 			boolean encryption = chk2.isSelected();
 			try {
-				new MaskEncoder(path.getText(), path.getText(), dir, encoding, slider.getValue(), "bmp", comp, encryption, pw);
+				//public MaskEncoderII(File infoFile, File maskFile, String setting, int bPP, boolean compression, boolean encryption, String password)
+				new MaskEncoderII(new File(path.getText()), new File(path2.getText()), encoding, slider.getValue(), comp, encryption, pw);
 			}catch (Exception E) {}
 
 			//After encoding, inform user of success
@@ -254,4 +256,6 @@ public class EncodeWindow extends JFrame {
 	public static void main(String[] args) {
 		new EncodeWindow();
 	}
+	
+	
 }

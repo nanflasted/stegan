@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 
 
+
 import javax.imageio.ImageIO;
 
 
@@ -42,31 +43,60 @@ public class MaskEncoderII {
 		imageWidth = mask.getWidth();
 		imageHeight= mask.getHeight();
 		byteGetter = new InfoProcessor(infoFile, bitsPerPixel, encryption, password);
-		writeReddenedHeader();
+		//Works for evens, no compression
+		try{
+
+			System.out.println("red!");
+			writeReddenedHeader();
+			System.out.println("info!");
+			readInfoFile();
+			fillRest();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
 		ImageIO.write(mask, "bmp", maskFile);
 		System.out.println("wrote!");
 	}
 	
-	private void writeRedValue(int value, int mod) throws Exception{
+	private void fillRest() throws Exception {
+		while(xPtr!=imageWidth-1 && yPtr != imageHeight - 1){
+			darken((int)(Math.random()*bPPmodValue),bPPmodValue);
+		}
+	}
+
+	private void darken(int value, int mod) throws Exception{
 		
 			//System.out.println("Read: " + value);
+		int newRed = readPixelRed();
+		int newBlue = readPixelBlue();
+		int newGreen = readPixelGreen();
 			
-			int newRed = readPixelRed();
-			int newBlue = readPixelBlue();
-			int newGreen = readPixelGreen();
+		if(readPixelValue() < value){
+				//bounce up
+				while((newRed + newBlue + newGreen) != value){
+					
+					if(newRed < 255)
+						newRed++;
+					else if (newBlue < 255)
+						newBlue++; 
+					else if (newGreen < 255)
+						newGreen++; 
+				}
+				
+		} else {
+			//bounce down
+			while((newRed + newBlue + newGreen) % mod != value){
+				if(newRed > 0)
+					newRed--;
+				else if (newBlue > 0)
+					newBlue--; 
+				else if (newGreen > 0)
+					newGreen--; 			
+			}		
+		}
+		
 			
-			int thisMod = (newRed + newBlue + newGreen) % mod;
-			
-		//	System.out.println("Modding by " + mod);
-			
-		//	System.out.println("Current Mod: " + thisMod);
-			
-			int delta = (value - thisMod);
-			//if we need to go up
-			if(newRed + delta <= 255)
-				newRed += delta;
-			else
-				newRed -= (delta - mod);
 			
 		//	System.out.println( "Mod is now :" + ((newRed + newBlue + newGreen) % mod));
 			writeColor(xPtr,yPtr,newRed,newGreen,newBlue);
@@ -77,53 +107,66 @@ public class MaskEncoderII {
 	public void writeReddenedHeader() throws Exception{
 		//write BPP
 		if(bitsPerPixel == 8){
-		writeRedValue(1,2);writeRedValue(1,2);writeRedValue(1,2);
+		darken(1,2);darken(1,2);darken(1,2);
 		}
 		if(bitsPerPixel == 7){
-		writeRedValue(1,2);writeRedValue(1,2);writeRedValue(0,2);
+		darken(1,2);darken(1,2);darken(0,2);
 		}
 		if(bitsPerPixel == 6){
-		writeRedValue(1,2);writeRedValue(0,2);writeRedValue(1,2);
+		darken(1,2);darken(0,2);darken(1,2);
 		}
 		if(bitsPerPixel == 5){
-		writeRedValue(1,2);writeRedValue(0,2);writeRedValue(0,2);
+		darken(1,2);darken(0,2);darken(0,2);
 		}
 		if(bitsPerPixel == 4){
-		writeRedValue(0,2);writeRedValue(1,2);writeRedValue(1,2);
+		darken(0,2);darken(1,2);darken(1,2);
 		}
 		if(bitsPerPixel == 3){
-		writeRedValue(0,2);writeRedValue(1,2);writeRedValue(0,2);
+		darken(0,2);darken(1,2);darken(0,2);
 		}
 		if(bitsPerPixel == 2){
-		writeRedValue(0,2);writeRedValue(0,2);writeRedValue(1,2);
+		darken(0,2);darken(0,2);darken(1,2);
 		}
 		if(bitsPerPixel == 1){
-		writeRedValue(0,2);writeRedValue(0,2);writeRedValue(0,2);
+		darken(0,2);darken(0,2);darken(0,2);
 		}
 		
 		//bits written. write file size!
+		//System.out.print("size?");
 		long size = infoFile.length();
-		System.out.println("size");
 		writeInt((int)size,30);
 		
-		System.out.println("txt");
-		//write chars 0 - 5
-		writeInt((int)'t',7);
-		writeInt((int)'x',7);
-		writeInt((int)'t',7);
-		writeInt((int)' ',7);
-		writeInt((int)' ',7);
+		//WORKS!
+		//get file extension?
+		String extension = "";
+
+		int i = infoFile.getName().lastIndexOf('.');
 		
-		//remainder flag
-		writeRedValue(0,bPPmodValue);
-		//compression flag
-		writeRedValue(0,2);
+		if (i > 0) {
+		    extension = infoFile.getName().substring(i+1);
+		}
 		
-		//just write F U C K
-		
-		writeRedValue((int)'F',256);
+		System.out.print(extension);
 		
 
+		//write chars 0 - 5
+		//TXT's only for now!
+		for(int j = 0; j != 5 ; j++){
+			if(j < extension.length())
+				writeInt((int)extension.charAt(j),7);
+			else
+				writeInt((int)' ',7);
+		}
+		
+		
+		
+		//remainder flag (zero cause 8 bit!
+		darken(0,bPPmodValue);
+		//compression flag
+		darken(0,2);
+		
+		
+ 
 	}
 	
 	public void incrementPixel() throws Exception{
@@ -178,11 +221,11 @@ public void writeInt(int i,int count) throws Exception{
 		
 		if(i >= Math.pow(2,bytesPos) ){
 			i -= Math.pow(2,bytesPos);
-			System.out.print("1");
-			writeRedValue(0,2);
+		//	System.out.print("1");
+			darken(1,2);
 		} else {
-			System.out.print("0");
-			writeRedValue(0,1);
+	//		System.out.print("0");
+			darken(0,2);
 		}
 		
 		bytesPos--;
@@ -191,6 +234,29 @@ public void writeInt(int i,int count) throws Exception{
 	//System.out.println();
 	
 }
+
+private void readInfoFile() throws Exception
+{
+	ArrayList<Integer> buffer;
+	int numberOfGroups = 10;//change numberOfGroups to an arbitrary integer indicating
+	  						//how many integers are to be pulled out of info file in a batch
+	buffer = byteGetter.getGroups(numberOfGroups);
+	while (buffer.get(0)!=1)
+	{
+		for (int i = 1; i < buffer.size(); i++)
+		{
+			darken(buffer.get(i).intValue(),bPPmodValue);
+		}
+		buffer = byteGetter.getGroups(numberOfGroups);
+	}
+	/*loop ends when buffer.get(0) == 1,
+	when this happens,
+	buffer.get(1) is the length of the remainder in the original file,
+	buffer.get(2)~buffer.get(buffer.size()-2) are the normal elements to be written,
+	and buffer.get(buffer.size()-1) which is the very last integer pulled out, is the remainder*/
+	
+}
+
 
 }
 

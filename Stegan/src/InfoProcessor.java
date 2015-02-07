@@ -14,7 +14,7 @@ public class InfoProcessor {
 	private boolean encrypting;
 	private int hashCode;
 	
-	public InfoProcessor(String fileName, int bitsPerPixel, boolean enc, String password) throws IOException //constructor: takes in filename to be read, and bits number request
+	public InfoProcessor(File fileName, int bitsPerPixel, boolean enc, String password) throws IOException //constructor: takes in filename to be read, and bits number request
 	{
 		stream = new FileInputStream(fileName);
 		wrapper = new BufferedInputStream(stream);
