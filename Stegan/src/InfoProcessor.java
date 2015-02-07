@@ -55,7 +55,7 @@ public class InfoProcessor {
 		int hashpart = hashCode & 0xFF;
 		temp = temp ^ hashpart;
 		hashCode = hashCode >> 8;
-		hashCode = hashCode | (temp << 24);
+		hashCode = hashCode | (hashpart << 24);
 		return (byte) temp;
 	}
 	
