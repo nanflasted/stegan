@@ -71,7 +71,7 @@ public class Decoder {
 		int compression = readPixelValue(2);
 		System.out.println(compression);
 		
-		out = new BufferedOutputStream(new FileOutputStream("output." + fileExt),1024);
+		out = new BufferedOutputStream(new FileOutputStream(outputFileLoc + "output." + fileExt),1024);
 		
 		////System.out.println("bitsPerPx " + bitsPerPx);
 	//	//System.out.println("pxCount " + pxCount);
