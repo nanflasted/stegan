@@ -39,6 +39,7 @@ public class EncodeWindow extends JFrame {
 		for (int i = 0; i < 5; i++)
 			jp[i] = new JPanel();
 
+
 		/***********\
 		Set up panels
 		\***********/
@@ -86,7 +87,7 @@ public class EncodeWindow extends JFrame {
 				i = fr.read();
 			}
 			fr.close();
-			tf.setText(sb.toString());
+			tf.setText(sb.toString().trim());
 			ext = sb.toString().substring(sb.toString().length() - 3, sb.toString().length());
 		}catch(Exception x){}
 		path = tf;
@@ -113,7 +114,7 @@ public class EncodeWindow extends JFrame {
 				i = fr.read();
 			}
 			fr.close();
-			tf2.setText(sb.toString());
+			tf2.setText(sb.toString().trim());
 			ext = sb.toString().substring(sb.toString().length() - 3, sb.toString().length());
 		}catch(Exception x){}
 		path2 = tf2;
@@ -266,9 +267,9 @@ public class EncodeWindow extends JFrame {
 				f = fc.getSelectedFile();
 				String filepath = f.getPath();
 				if (bnum == 0)
-					EncodeWindow.this.path.setText(filepath);
+					EncodeWindow.this.path.setText(filepath.trim());
 				else if (bnum == 1)
-					EncodeWindow.this.path2.setText(filepath);
+					EncodeWindow.this.path2.setText(filepath.trim());
 
 				ext = filepath.substring(filepath.length()-3, filepath.length());
 				if (bnum == 1 && ext.equals("bmp") && path.getText() != null && !path.getText().equals(""))
@@ -306,6 +307,21 @@ public class EncodeWindow extends JFrame {
 	//Waits for Encode btn to be clicked, then makes the call to encode the data file into the picture
 	public class EncodeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			String firstStr = EncodeWindow.this.stg.getText(),
+				   secondStr = EncodeWindow.this.dataSize.getText();
+			int j = 25, k = j;
+			while (firstStr.charAt(k) != ' ')
+				k++;
+			double firstNum = Double.parseDouble(firstStr.substring(j,k));
+			j = 14; k = j;
+			while (secondStr.charAt(k) != ' ')
+				k++;
+			double secondNum = Double.parseDouble(secondStr.substring(j,k));
+
+			if (firstNum < secondNum) {
+				JOptionPane.showMessageDialog(null, "Error: Not enough room for data in picture.");
+				return;
+			}
 			//Find parent directory
 			String s = path.getText();
 			int i = s.length()-1;

@@ -1,12 +1,15 @@
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import sun.awt.image.ToolkitImage;
 
 //Electric Boogaloo
+
 
 
 
@@ -50,10 +53,17 @@ public class MaskEncoderII {
 		this.bitsPerPixel = bPP;
 		this.bPPmodValue = (int) Math.pow(2, bPP);
 		this.compression = compression;
-		System.out.print("PassWord" + password);
+		System.out.println("Password: " + password);
 
 		if(password != null)
 			encryption = true;
+		
+		System.out.println("Compression? " + compression);
+		
+		if(compression){
+			System.out.println("Compressing... ");
+			CompressionTool.compress(infoFile);
+		}
 
 		this.password = password;
 		imageWidth = mask.getWidth();
@@ -83,11 +93,11 @@ public class MaskEncoderII {
 		}
 
 	}
-
+	
+	//preview example!
 	public MaskEncoderII(File picFile,String encoding, int bPP) throws Exception{
-		BufferedImage i = ImageIO.read(picFile);
-		Image icon = i.getScaledInstance(150, 150, 0);
-		mask = ((ToolkitImage)icon).getBufferedImage();
+		mask = ImageIO.read(picFile);
+		mask = toBufferedImage(mask.getScaledInstance(150, 150, 0));
 		this.encoding = encoding;
 		this.bitsPerPixel = bPP;
 		this.bPPmodValue = (int) Math.pow(2, bPP);
@@ -209,7 +219,7 @@ public class MaskEncoderII {
 		    extension = infoFile.getName().substring(i+1);
 		}
 
-		System.out.print(extension);
+		System.out.println("Extension: " + extension);
 
 
 		//write chars 0 - 5
@@ -228,7 +238,7 @@ public class MaskEncoderII {
 		yRem= yPtr;
 		colorChange(0,2);
 		//compression flag
-		colorChange(0,2);
+		colorChange(compression? 1 : 0 ,2);
 
 
 
@@ -243,7 +253,7 @@ public class MaskEncoderII {
 		}
 
 		if(yPtr == imageHeight)
-			throw new Exception ("Reached End of file before finished!");
+			throw new Exception ("Storage Failed: Info File Too Big.");
 	}
 
 public int readPixelValue() throws Exception{
@@ -335,6 +345,24 @@ private void writeRemainder(int integer) throws Exception {
 	yPtr = tempy;
 }
 
+public static BufferedImage toBufferedImage(Image img)
+{
+    if (img instanceof BufferedImage)
+    {
+        return (BufferedImage) img;
+    }
+
+    // Create a buffered image with transparency
+    BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+    // Draw the image on to the buffered image
+    Graphics2D bGr = bimage.createGraphics();
+    bGr.drawImage(img, 0, 0, null);
+    bGr.dispose();
+
+    // Return the buffered image
+    return bimage;
+}
 
 }
 

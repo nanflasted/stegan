@@ -8,9 +8,9 @@ public class CompressionTool {
 	private static DeflaterOutputStream outStream;
 	private static BufferedInputStream dinStream;
 	private static InflaterOutputStream doutStream;
-	public static void compress(String fileName) throws IOException
+	public static void compress(File file) throws IOException
 	{
-		fis = new FileInputStream(fileName);
+		fis = new FileInputStream(file);
 		inStream = new BufferedInputStream(fis);
 		fos = new FileOutputStream("temp");
 		outStream = new DeflaterOutputStream(fos);
@@ -22,7 +22,7 @@ public class CompressionTool {
 		inStream.close();
 		outStream.close();
 	}
-	
+
 	public static void decompress(String fileName) throws IOException
 	{
 		fis = new FileInputStream("temp");
