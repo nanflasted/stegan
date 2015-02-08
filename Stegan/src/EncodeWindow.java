@@ -145,13 +145,13 @@ public class EncodeWindow extends JFrame {
 			}
 			i = fr.read();
 			i = fr.read();
-			firstPath = sb.toString();
+			firstPath = sb.toString().trim();
 			sb = new StringBuilder();
 			while (i != -1) {
 				sb.append((char)i);
 				i = fr.read();
 			}
-			secondPath = sb.toString();
+			secondPath = sb.toString().trim();
 			fr.close();
 
 			//2) Make new files
@@ -416,7 +416,7 @@ public class EncodeWindow extends JFrame {
 				j.add(southPanel, BorderLayout.SOUTH);
 				j.setVisible(true);
 			}catch(IOException x) {}
-			catch(Exception x) {}
+			catch(Exception x) {x.printStackTrace();}
 		}
 	}
 
