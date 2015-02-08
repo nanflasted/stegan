@@ -37,10 +37,10 @@ public class CompressionTool {
 		dinStream.close();
 		doutStream.close();
 	}
-	public static void main(String[] args) throws IOException
+	/*public static void main(String[] args) throws IOException
 	{
 		CompressionTool.compress("compressionTest.in");
 		CompressionTool.decompress("compressionTest.in");
-	}
+	}*/
 
 }

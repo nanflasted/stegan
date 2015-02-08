@@ -303,7 +303,6 @@ private void readInfoFile() throws Exception
 }
 
 private void writeRemainder(int integer) throws Exception {
-	// TODO Auto-generated method stub
 	int tempx = xPtr;
 	int tempy = yPtr;
 	xPtr = xRem;
