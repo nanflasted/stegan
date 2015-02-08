@@ -85,6 +85,7 @@ public class DecodeWindow extends JFrame {
 			//After decoding, tell the user it has finished decoding. (Build a new window)
 			DecodeWindow.this.setVisible(false);
 
+			//Tell the user decoding has completed.
 			JDialog d = new JDialog(DecodeWindow.this, "Decoding Complete");
 			d.setSize(300,120);
 			Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
