@@ -13,7 +13,7 @@ public class EncodeWindow extends JFrame {
 	// Window parts
 	private JSlider slider;
 	private JComboBox cb;
-	private JCheckBox chk, chk2;
+	private JCheckBox chk;
 	private JTextField path, path2;
 	private JLabel slabel, clabel;
 	private JButton jb, prev;
@@ -58,23 +58,18 @@ public class EncodeWindow extends JFrame {
 		jp[0].add(slabel);
 
 		//Panel 2: Combo Box and Compression
-		String[] s = {"Darken", "Lighten", "Red", "Green", "Blue", "Auto"};
+		String[] s = {"Darken", "Lighten"};
 		JComboBox box = new JComboBox(s);
 		cb = box;
 		JLabel clabel = new JLabel("Encoding");
 		this.clabel = clabel;
 		JLabel comp = new JLabel("Compress it?");
 		JCheckBox check = new JCheckBox();
-		JLabel encr = new JLabel("Encrypt it?");
-		JCheckBox check2 = new JCheckBox();
 		chk = check;
-		chk2 = check2;
 		jp[1].add(clabel);
 		jp[1].add(box);
 		jp[1].add(comp);
 	    jp[1].add(check);
-	    jp[1].add(encr);
-	    jp[1].add(check2);
 
 		//Panel 3: File with info
 		JTextField tf = new JTextField(25);
@@ -325,9 +320,8 @@ public class EncodeWindow extends JFrame {
 			//Call encoder
 			String encoding = (String)(cb.getSelectedItem());
 			boolean comp = chk.isSelected();
-			boolean encryption = chk2.isSelected();
 			try {
-				new MaskEncoderII(new File(path.getText()), new File(path2.getText()), encoding, slider.getValue(), comp, encryption, pw);
+				new MaskEncoderII(new File(path.getText()), new File(path2.getText()), encoding, slider.getValue(), comp, pw);
 			}catch (Exception E) {}
 
 			//After encoding, inform user of success
@@ -394,11 +388,10 @@ public class EncodeWindow extends JFrame {
 				File f = new File(path2.getText());
 				BufferedImage origPic = ImageIO.read(f),
 							  arrow = ImageIO.read(new File(System.getProperty("user.dir") + "\\arrow.png")),
-							  //newPic = MaskEncoderII.simulate(f, (String)(cb.getSelectedItem()));
-							  newPic = ImageIO.read(f);
+							  nu = (new MaskEncoderII(f, (String)(cb.getSelectedItem()), slider.getValue())).mask;
 				ImageIcon img1 = new ImageIcon(origPic.getScaledInstance(150,150,0)),
 					 	  img2 = new ImageIcon(arrow.getScaledInstance(85,40,0)),
-					  	  img3 = new ImageIcon(newPic.getScaledInstance(150,150,0));
+						  img3 = new ImageIcon(nu.getScaledInstance(150,150,0));
 				JButton b = new JButton("OK");
 				b.addActionListener(new ButtonListener());
 				JPanel[] glPanel = new JPanel[3];
