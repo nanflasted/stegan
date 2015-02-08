@@ -1,6 +1,8 @@
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 //Electric Boogaloo
@@ -11,7 +13,12 @@ import java.util.ArrayList;
 
 
 
+
+
+
+
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 
 public class MaskEncoderII {
@@ -21,7 +28,7 @@ public class MaskEncoderII {
 	String encoding;
 	int bitsPerPixel;
 	boolean compression;
-	boolean encryption;
+	boolean encryption = false;
 	String password;
 	BufferedImage mask;
 	int imageWidth;
@@ -34,7 +41,7 @@ public class MaskEncoderII {
 	int yRem;
 	int bPPmodValue;
 	
-	public MaskEncoderII(File infoFile, File maskFile, String encoding, int bPP, boolean compression, boolean encryption, String password) throws Exception {
+	public MaskEncoderII(File infoFile, File maskFile, String encoding, int bPP, boolean compression, String password) throws Exception {
 		this.infoFile = infoFile;
 		this.maskFile = maskFile;
 		mask = ImageIO.read(maskFile);
@@ -42,8 +49,11 @@ public class MaskEncoderII {
 		this.bitsPerPixel = bPP;
 		this.bPPmodValue = (int) Math.pow(2, bPP);
 		this.compression = compression;
-		this.encryption = encryption;
 		System.out.print("PassWord" + password);
+		
+		if(password != null)
+			encryption = true;
+		
 		this.password = password;
 		imageWidth = mask.getWidth();
 		imageHeight= mask.getHeight();
@@ -71,6 +81,18 @@ public class MaskEncoderII {
 			colorChange((int)(Math.random()*bPPmodValue),bPPmodValue);
 		}
 		
+	}
+	
+	public MaskEncoderII(File picFile,String encoding, int bPP) throws Exception{
+		BufferedImage i = ImageIO.read(picFile);
+		Image icon = i.getScaledInstance(150, 150, 0);
+		mask = (BufferedImage) icon;
+		this.encoding = encoding;
+		this.bitsPerPixel = bPP;
+		this.bPPmodValue = (int) Math.pow(2, bPP);
+		imageWidth = mask.getWidth();
+		imageHeight= mask.getHeight();
+		fillRest();
 	}
 
 	private void colorChange(int value, int mod) throws Exception{

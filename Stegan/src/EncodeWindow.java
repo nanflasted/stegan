@@ -388,10 +388,10 @@ public class EncodeWindow extends JFrame {
 				File f = new File(path2.getText());
 				BufferedImage origPic = ImageIO.read(f),
 							  arrow = ImageIO.read(new File(System.getProperty("user.dir") + "\\arrow.png")),
-							  nu = (new MaskEncoderII(f, (String)(cb.getSelectedItem()), slider.getValue())).mask;
+							  newPic = (new MaskEncoderII(f, (String)(cb.getSelectedItem()), slider.getValue())).mask;
 				ImageIcon img1 = new ImageIcon(origPic.getScaledInstance(150,150,0)),
 					 	  img2 = new ImageIcon(arrow.getScaledInstance(85,40,0)),
-						  img3 = new ImageIcon(nu.getScaledInstance(150,150,0));
+						  img3 = new ImageIcon(newPic.getScaledInstance(150,150,0));
 				JButton b = new JButton("OK");
 				b.addActionListener(new ButtonListener());
 				JPanel[] glPanel = new JPanel[3];
@@ -416,6 +416,7 @@ public class EncodeWindow extends JFrame {
 				j.add(southPanel, BorderLayout.SOUTH);
 				j.setVisible(true);
 			}catch(IOException x) {}
+			catch(Exception x) {}
 		}
 	}
 
