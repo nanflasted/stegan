@@ -1,2 +1,2 @@
 # stegan
-Stick data into pic
+conceal messages in multi-media files!
